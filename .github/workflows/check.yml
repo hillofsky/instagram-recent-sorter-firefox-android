@@ -1,0 +1,23 @@
+name: userscript-syntax
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: node --check InstagramRecentMobile.user.js
+      - name: Check metadata matches script
+        run: |
+          python3 - <<'PY_CHECK'
+          from pathlib import Path
+          js = Path('InstagramRecentMobile.user.js').read_text(encoding='utf-8')
+          txt = Path('InstagramRecentMobile_AndroidDownload.txt').read_text(encoding='utf-8')
+          meta = Path('InstagramRecentMobile.meta.js').read_text(encoding='utf-8')
+          assert js == txt
+          assert js.startswith(meta)
+          print('Metadata match PASS')
+          PY_CHECK
